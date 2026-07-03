@@ -4,7 +4,7 @@ A lightweight web app that helps students *see* time and space complexity instea
 
 🔗 **Live demo:** [bigo-visualizer.vercel.app](https://bigo-visualizer.vercel.app) <!-- update once deployed -->
 
-![Screenshot](![alt text](image.png)) <!-- add a screenshot or GIF once the UI is ready -->
+(![alt text](image.png)) <!-- add a screenshot or GIF once the UI is ready -->
 
 
 ## Why I built this

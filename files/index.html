@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Big-O Visualizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="masthead">
+    <div class="masthead__mark">O(&fnof;)</div>
+    <div class="masthead__titles">
+      <h1>Big-O Visualizer</h1>
+      <p class="masthead__sub">See how an algorithm's cost grows as the input does.</p>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- Left: controls + explanation -->
+    <section class="panel" aria-label="Algorithm details">
+      <label class="field">
+        <span class="field__label">Focus algorithm</span>
+        <select id="algorithm-select">
+          <option value="">Choose an algorithm…</option>
+        </select>
+      </label>
+
+      <div class="field">
+        <span class="field__label">Comparison</span>
+        <div class="segmented" id="mode-group" role="radiogroup" aria-label="Comparison mode">
+          <label class="segmented__opt">
+            <input type="radio" name="mode" value="solo" checked>
+            <span>Only focus</span>
+          </label>
+          <label class="segmented__opt">
+            <input type="radio" name="mode" value="pick">
+            <span>Pick others</span>
+          </label>
+          <label class="segmented__opt">
+            <input type="radio" name="mode" value="all">
+            <span>Compare all</span>
+          </label>
+        </div>
+      </div>
+
+      <label class="field" id="compare-field" hidden>
+        <span class="field__label">Compare with</span>
+        <select id="compare-select" multiple size="6"></select>
+        <span class="field__hint">Overlay any others on the chart. Ctrl / ⌘-click to pick several.</span>
+      </label>
+
+      <div id="detail" class="detail" hidden>
+        <div class="badges" id="badges"></div>
+
+        <div class="detail__block">
+          <h2 class="detail__heading">How it grows</h2>
+          <p id="explanation" class="explanation"></p>
+        </div>
+
+        <div class="detail__block">
+          <h2 class="detail__heading">Code</h2>
+          <pre class="code"><code id="code"></code></pre>
+        </div>
+      </div>
+
+      <p id="empty" class="empty">
+        Pick an algorithm to see its complexity, annotated code, and growth curve.
+      </p>
+    </section>
+
+    <!-- Right: the chart, the hero -->
+    <section class="panel panel--chart" aria-label="Growth chart">
+      <div class="chart-head">
+        <h2 class="detail__heading">Operations vs. input size</h2>
+        <label class="toggle">
+          <input type="checkbox" id="log-toggle">
+          <span>Log scale</span>
+        </label>
+      </div>
+      <label class="range">
+        <span class="range__label">Max n</span>
+        <input type="range" id="n-range" min="5" max="100" step="1" value="20">
+        <output id="n-value">20</output>
+      </label>
+      <div class="chart-wrap">
+        <canvas id="chart"></canvas>
+      </div>
+      <p class="chart-note" id="chart-note">
+        The focus algorithm is solid; comparisons are dashed. Drag the <strong>Max n</strong> slider to change the input-size range, or drag the chart's bottom edge to resize it. Toggle Log scale to compare very different growth rates.
+      </p>
+    </section>
+  </main>
+
+  <!-- Pinned to major 4 to avoid silent breakage on a new release -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="data/algorithms.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

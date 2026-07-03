@@ -1,0 +1,351 @@
+/* =========================================================
+   Big-O Visualizer
+   Concept: a dark graph plane. The curve is the subject, so
+   the background reads like plotting paper and the type is
+   monospace-forward (code is the material). One accent hue
+   per complexity class; everything else stays quiet.
+   ========================================================= */
+
+:root {
+  --bg:        #0d1117;   /* deep plane */
+  --grid:      #1b2430;   /* plotting-paper lines */
+  --surface:   #131a24;   /* raised panels */
+  --surface-2: #0a0f16;   /* code wells */
+  --line:      #263041;   /* borders */
+  --ink:       #e6edf3;   /* primary text */
+  --ink-dim:   #8b98a9;   /* secondary text */
+  --accent:    #5ac8fa;   /* signature cyan */
+  --accent-2:  #ffd166;   /* warm counterpoint (worst-case) */
+  --good:      #6ee7a8;
+
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --disp: "Space Grotesk", system-ui, sans-serif;
+
+  --radius: 10px;
+  --maxw: 1240px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--disp);
+  color: var(--ink);
+  background-color: var(--bg);
+  /* graph-paper grid, drawn with two repeating gradients */
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Masthead ---------- */
+.masthead {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 2.4rem 1.5rem 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+}
+
+.masthead__mark {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 1.55rem;
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 0.35rem 0.6rem;
+  line-height: 1;
+  box-shadow: 0 0 24px -6px var(--accent);
+}
+
+.masthead h1 {
+  font-size: clamp(1.5rem, 3.4vw, 2.15rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.masthead__sub {
+  margin: 0.2rem 0 0;
+  color: var(--ink-dim);
+  font-size: 0.95rem;
+}
+
+/* ---------- Layout ---------- */
+.layout {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0.5rem 1.5rem 3rem;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 1.25rem;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.4rem;
+}
+
+/* ---------- Field / select ---------- */
+.field { display: block; }
+/* `.field` sets display, which would otherwise defeat the [hidden] attribute */
+.field[hidden] { display: none; }
+.field + .field { margin-top: 1rem; }
+
+.field__hint {
+  display: block;
+  margin-top: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  line-height: 1.4;
+  color: var(--ink-dim);
+}
+
+.field__label,
+.detail__heading {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-dim);
+}
+
+.field__label { display: block; margin-bottom: 0.5rem; }
+
+#algorithm-select {
+  width: 100%;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.7rem 0.8rem;
+  appearance: none;
+  cursor: pointer;
+}
+#algorithm-select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+#algorithm-select optgroup { color: var(--ink-dim); }
+#algorithm-select option { color: var(--ink); }
+
+/* Segmented control for comparison mode */
+.segmented {
+  display: flex;
+  gap: 0.3rem;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.25rem;
+}
+.segmented__opt {
+  flex: 1;
+  display: flex;
+  cursor: pointer;
+}
+.segmented__opt input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.segmented__opt span {
+  width: 100%;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink-dim);
+  padding: 0.42rem 0.3rem;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+.segmented__opt input:checked + span {
+  background: var(--accent);
+  color: #0d1117;
+  font-weight: 700;
+}
+.segmented__opt input:focus-visible + span {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Multi-select for overlay comparisons */
+#compare-select {
+  width: 100%;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.4rem;
+}
+#compare-select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+#compare-select optgroup { color: var(--ink-dim); }
+#compare-select option {
+  color: var(--ink);
+  padding: 0.28rem 0.4rem;
+  border-radius: 4px;
+}
+#compare-select option:checked {
+  background: var(--accent) linear-gradient(0deg, var(--accent), var(--accent));
+  color: #0d1117;
+  font-weight: 700;
+}
+
+/* ---------- Detail ---------- */
+.detail { margin-top: 1.4rem; }
+.detail__block + .detail__block { margin-top: 1.3rem; }
+.detail__heading { margin: 0 0 0.55rem; }
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.3rem;
+}
+
+.badge {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  padding: 0.32rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  display: inline-flex;
+  gap: 0.45rem;
+  align-items: baseline;
+}
+.badge b {
+  color: var(--accent);
+  font-weight: 700;
+}
+.badge--worst b { color: var(--accent-2); }
+.badge__key {
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+}
+
+.explanation {
+  margin: 0;
+  line-height: 1.6;
+  color: var(--ink);
+  font-size: 0.98rem;
+}
+
+.code {
+  margin: 0;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+}
+.code code {
+  font-family: var(--mono);
+  font-size: 0.83rem;
+  line-height: 1.55;
+  color: #cdd9e5;
+  white-space: pre;
+}
+
+.empty {
+  margin: 1.4rem 0 0;
+  color: var(--ink-dim);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+/* ---------- Chart panel ---------- */
+.panel--chart { display: flex; flex-direction: column; }
+
+.chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.chart-head .detail__heading { margin: 0; }
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--ink-dim);
+  cursor: pointer;
+  user-select: none;
+}
+.toggle input { accent-color: var(--accent); cursor: pointer; }
+
+/* Max-n slider */
+.range {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--ink-dim);
+}
+.range__label { white-space: nowrap; }
+.range input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.range output {
+  min-width: 3ch;
+  text-align: right;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+/* Bounded, user-resizable chart area. Chart.js (responsive) follows the
+   container size, so dragging the bottom edge redraws the plot to fit. */
+.chart-wrap {
+  position: relative;
+  height: 420px;
+  min-height: 260px;
+  max-height: 80vh;
+  resize: vertical;
+  overflow: hidden;
+}
+
+.chart-note {
+  margin: 0.9rem 0 0;
+  color: var(--ink-dim);
+  font-size: 0.8rem;
+  font-family: var(--mono);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 860px) {
+  /* minmax(0, …) so a wide child (e.g. the code block) scrolls instead of
+     stretching the column past the viewport */
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .chart-wrap { min-height: 320px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; }
+}
